@@ -11,6 +11,8 @@ func main() {
 	for {
 		window_maganer()
 
+		heightmap_editor.tool_window.update()
+
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.Black)
 

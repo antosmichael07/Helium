@@ -5,11 +5,11 @@ import (
 )
 
 type tool_window struct {
-	x            int32
-	y            int32
-	width        int32
-	height       int32
-	selected_tab int
+	rect         rl.Rectangle
+	border_rect  rl.Rectangle
+	holding_rect rl.Rectangle
+	holding      bool
+	selected_tab byte
 	tabs         []tab
 }
 
@@ -26,10 +26,10 @@ const (
 
 func init_tool_window() tool_window {
 	return tool_window{
-		x:            100,
-		y:            100,
-		width:        600,
-		height:       400,
+		rect:         rl.NewRectangle(101, 130, 598, 369),
+		border_rect:  rl.NewRectangle(100, 100, 600, 400),
+		holding_rect: rl.NewRectangle(100, 100, 600, 30),
+		holding:      false,
 		selected_tab: 0,
 		tabs: []tab{
 			{
@@ -44,8 +44,23 @@ func init_tool_window() tool_window {
 	}
 }
 
+func (tw *tool_window) update() {
+	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
+		tw.holding = false
+	} else if (rl.IsMouseButtonPressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(rl.GetMousePosition(), tw.holding_rect)) || tw.holding {
+		tw.holding = true
+		if mouse_delta := rl.GetMouseDelta(); mouse_delta.X != 0 || mouse_delta.Y != 0 {
+			tw.rect.X += mouse_delta.X
+			tw.rect.Y += mouse_delta.Y
+			tw.border_rect.X += mouse_delta.X
+			tw.border_rect.Y += mouse_delta.Y
+			tw.holding_rect.X += mouse_delta.X
+			tw.holding_rect.Y += mouse_delta.Y
+		}
+	}
+}
+
 func (tw *tool_window) draw(cc *color_config) {
-	rl.DrawRectangle(tw.x, tw.y, tw.width, tw.height, cc.tool_window_background)
-	rl.DrawRectangle(tw.x, tw.y, tw.width, 30, cc.tool_window_border)
-	rl.DrawRectangleLines(tw.x, tw.y, tw.width, tw.height, cc.tool_window_border)
+	rl.DrawRectangleRec(tw.border_rect, cc.tool_window_border)
+	rl.DrawRectangleRec(tw.rect, cc.tool_window_background)
 }
