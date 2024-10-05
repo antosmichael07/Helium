@@ -8,6 +8,7 @@ import (
 
 type heightmap_editor struct {
 	tool_window     tool_window
+	buttons         buttons
 	heightmap_image *rl.Image
 	texture_image   *rl.Image
 	config          config
@@ -16,6 +17,7 @@ type heightmap_editor struct {
 func init_heightmap_editor() heightmap_editor {
 	return heightmap_editor{
 		tool_window:     init_tool_window(),
+		buttons:         init_buttons(),
 		heightmap_image: &rl.Image{},
 		texture_image:   &rl.Image{},
 		config:          init_config(),

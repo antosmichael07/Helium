@@ -52,9 +52,9 @@ func init_tool_window() tool_window {
 }
 
 func (tw *tool_window) update() {
-	tw.button_press()
 	tw.movement()
 	tw.resizing()
+	tw.tab_press()
 	tw.tab_selecting()
 	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 		tw.is_holding = false
@@ -64,7 +64,7 @@ func (tw *tool_window) update() {
 	}
 }
 
-func (tw *tool_window) button_press() {
+func (tw *tool_window) tab_press() {
 	if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
 		for i := 0; i < len(tw.tabs); i++ {
 			if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[i])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(rl.MeasureText(tw.tabs[i], 20)+10), 30)) {
@@ -153,7 +153,7 @@ func (tw *tool_window) resizing() {
 }
 
 func (tw *tool_window) tab_selecting() {
-	if rl.IsMouseButtonReleased(rl.MouseLeftButton) && tw.button_pressed != -1 {
+	if tw.button_pressed != -1 && rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 		if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[tw.button_pressed])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(rl.MeasureText(tw.tabs[tw.button_pressed], 20)+10), 30)) {
 			tw.selected_tab = tw.button_pressed
 		}
@@ -163,26 +163,26 @@ func (tw *tool_window) tab_selecting() {
 func (tw *tool_window) draw(cc *color_config) {
 	rl.DrawRectangleRec(tw.border_rect, cc.tool_window_border)
 	rl.DrawRectangleRec(tw.inner_rect, cc.tool_window_background)
-	rl.DrawText("Tool Window", int32(tw.border_rect.X)+5, int32(tw.border_rect.Y)+5, 30, cc.tool_window_text)
+	rl.DrawText("Tool Window", int32(tw.border_rect.X)+5, int32(tw.border_rect.Y)+5, 30, cc.button_text)
 	tw.draw_tabs(cc)
 }
 
 func (tw *tool_window) draw_tabs(cc *color_config) {
-	rl.DrawRectangleRec(tw.tabs_rect, cc.tool_window_tab)
+	rl.DrawRectangleRec(tw.tabs_rect, cc.button)
 	for i := 0; i < len(tw.tabs); i++ {
 		if i == tw.selected_tab {
 			if !rl.IsMouseButtonDown(rl.MouseLeftButton) || tw.button_pressed == -1 {
-				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_click)
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.button_click)
 			} else {
-				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_hover)
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.button_hover)
 			}
 		} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[i])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(tw.tab_widths[i]), 30)) {
 			if tw.button_pressed == i {
-				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_click)
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.button_click)
 			} else if !rl.IsMouseButtonDown(rl.MouseLeftButton) {
-				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_hover)
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.button_hover)
 			}
 		}
-		rl.DrawText(tw.tabs[i], tw.tab_offsets[i]+int32(tw.tabs_rect.X)+5, int32(tw.tabs_rect.Y)+5, 20, cc.tool_window_text)
+		rl.DrawText(tw.tabs[i], tw.tab_offsets[i]+int32(tw.tabs_rect.X)+5, int32(tw.tabs_rect.Y)+5, 20, cc.button_text)
 	}
 }
