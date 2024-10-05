@@ -5,18 +5,19 @@ import (
 )
 
 type tool_window struct {
-	inner_rect    rl.Rectangle
-	border_rect   rl.Rectangle
-	holding_rect  rl.Rectangle
-	resizing_rect rl.Rectangle
-	tabs_rect     rl.Rectangle
-	is_holding    bool
-	is_resizing   bool
-	resizing_mode byte
-	selected_tab  int
-	tabs          [3]string
-	tab_widths    [3]int32
-	tab_offsets   [3]int32
+	inner_rect     rl.Rectangle
+	border_rect    rl.Rectangle
+	holding_rect   rl.Rectangle
+	resizing_rect  rl.Rectangle
+	tabs_rect      rl.Rectangle
+	is_holding     bool
+	is_resizing    bool
+	resizing_mode  byte
+	selected_tab   int
+	tabs           [3]string
+	tab_widths     [3]int32
+	tab_offsets    [3]int32
+	button_pressed int
 }
 
 const (
@@ -34,30 +35,44 @@ const (
 
 func init_tool_window() tool_window {
 	return tool_window{
-		inner_rect:    rl.NewRectangle(101, 140, 598, 359),
-		border_rect:   rl.NewRectangle(100, 100, 600, 400),
-		holding_rect:  rl.NewRectangle(100, 100, 600, 40),
-		resizing_rect: rl.NewRectangle(94, 94, 612, 412),
-		tabs_rect:     rl.NewRectangle(101, 140, 598, 30),
-		is_holding:    false,
-		is_resizing:   false,
-		resizing_mode: 0,
-		selected_tab:  0,
-		tabs:          [3]string{"Heightmap", "Texture", "Models"},
-		tab_widths:    [3]int32{108, 94, 78},
-		tab_offsets:   [3]int32{0, 108, 202},
+		inner_rect:     rl.NewRectangle(101, 140, 598, 359),
+		border_rect:    rl.NewRectangle(100, 100, 600, 400),
+		holding_rect:   rl.NewRectangle(100, 100, 600, 40),
+		resizing_rect:  rl.NewRectangle(94, 94, 612, 412),
+		tabs_rect:      rl.NewRectangle(101, 140, 598, 30),
+		is_holding:     false,
+		is_resizing:    false,
+		resizing_mode:  0,
+		selected_tab:   0,
+		tabs:           [3]string{"Heightmap", "Texture", "Models"},
+		tab_widths:     [3]int32{108, 94, 78},
+		tab_offsets:    [3]int32{0, 108, 202},
+		button_pressed: -1,
 	}
 }
 
 func (tw *tool_window) update() {
+	tw.button_press()
+	tw.movement()
+	tw.resizing()
+	tw.tab_selecting()
 	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 		tw.is_holding = false
 		tw.is_resizing = false
 		tw.resizing_mode = 0
+		tw.button_pressed = -1
 	}
-	tw.movement()
-	tw.resizing()
-	tw.tab_selecting()
+}
+
+func (tw *tool_window) button_press() {
+	if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
+		for i := 0; i < len(tw.tabs); i++ {
+			if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[i])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(rl.MeasureText(tw.tabs[i], 20)+10), 30)) {
+				tw.button_pressed = i
+				break
+			}
+		}
+	}
 }
 
 func (tw *tool_window) movement() {
@@ -138,14 +153,9 @@ func (tw *tool_window) resizing() {
 }
 
 func (tw *tool_window) tab_selecting() {
-	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
-		var length int32 = 0
-		for i := 0; i < len(tw.tabs); i++ {
-			if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(length)+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(rl.MeasureText(tw.tabs[i], 20)+10), 30)) {
-				tw.selected_tab = i
-				break
-			}
-			length += rl.MeasureText(tw.tabs[i], 20) + 10
+	if rl.IsMouseButtonReleased(rl.MouseLeftButton) && tw.button_pressed != -1 {
+		if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[tw.button_pressed])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(rl.MeasureText(tw.tabs[tw.button_pressed], 20)+10), 30)) {
+			tw.selected_tab = tw.button_pressed
 		}
 	}
 }
@@ -161,11 +171,15 @@ func (tw *tool_window) draw_tabs(cc *color_config) {
 	rl.DrawRectangleRec(tw.tabs_rect, cc.tool_window_tab)
 	for i := 0; i < len(tw.tabs); i++ {
 		if i == tw.selected_tab {
-			rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_click)
-		} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[i])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(tw.tab_widths[i]), 30)) {
-			if rl.IsMouseButtonDown(rl.MouseLeftButton) {
+			if !rl.IsMouseButtonDown(rl.MouseLeftButton) || tw.button_pressed == -1 {
 				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_click)
 			} else {
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_hover)
+			}
+		} else if rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.NewRectangle(float32(tw.tab_offsets[i])+tw.tabs_rect.X, float32(tw.tabs_rect.Y), float32(tw.tab_widths[i]), 30)) {
+			if tw.button_pressed == i {
+				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_click)
+			} else if !rl.IsMouseButtonDown(rl.MouseLeftButton) {
 				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.tool_window_tab_hover)
 			}
 		}

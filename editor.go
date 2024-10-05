@@ -22,6 +22,12 @@ func init_heightmap_editor() heightmap_editor {
 	}
 }
 
+func (he *heightmap_editor) new_file(width, height int) {
+	he.heightmap_image = rl.GenImageColor(width, height, rl.Black)
+	he.texture_image = rl.GenImageColor(width, height, rl.White)
+
+}
+
 func (he *heightmap_editor) save_heightmap_texture_image(file string) error {
 	heightmap_data := rl.ExportImageToMemory(*he.heightmap_image, ".png")
 	texture_data := rl.ExportImageToMemory(*he.texture_image, ".png")
