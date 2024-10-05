@@ -8,10 +8,6 @@ func main() {
 	init_window()
 	heightmap_editor := init_heightmap_editor()
 
-	heightmap_editor.buttons.new_group()
-
-	heightmap_editor.buttons.new_button_texture(button_group_main, &heightmap_editor.textures[texture_icon_file_new], 0, 0, func() {})
-
 	for {
 		window_maganer()
 

@@ -161,9 +161,9 @@ func (tw *tool_window) tab_selecting() {
 }
 
 func (tw *tool_window) draw(cc *color_config) {
-	rl.DrawRectangleRec(tw.border_rect, cc.tool_window_border)
-	rl.DrawRectangleRec(tw.inner_rect, cc.tool_window_background)
-	rl.DrawText("Tool Window", int32(tw.border_rect.X)+5, int32(tw.border_rect.Y)+5, 30, cc.button_text)
+	rl.DrawRectangleRec(tw.border_rect, cc.window_border)
+	rl.DrawRectangleRec(tw.inner_rect, cc.window_background)
+	rl.DrawText("Tool Window", int32(tw.border_rect.X)+5, int32(tw.border_rect.Y)+5, 30, cc.text)
 	tw.draw_tabs(cc)
 }
 
@@ -183,6 +183,6 @@ func (tw *tool_window) draw_tabs(cc *color_config) {
 				rl.DrawRectangle(tw.tab_offsets[i]+int32(tw.tabs_rect.X), int32(tw.tabs_rect.Y), tw.tab_widths[i], 30, cc.button_hover)
 			}
 		}
-		rl.DrawText(tw.tabs[i], tw.tab_offsets[i]+int32(tw.tabs_rect.X)+5, int32(tw.tabs_rect.Y)+5, 20, cc.button_text)
+		rl.DrawText(tw.tabs[i], tw.tab_offsets[i]+int32(tw.tabs_rect.X)+5, int32(tw.tabs_rect.Y)+5, 20, cc.text)
 	}
 }

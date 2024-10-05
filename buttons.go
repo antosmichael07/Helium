@@ -9,6 +9,7 @@ type buttons struct {
 	group_pressed  int
 	button_pressed int
 	empty_texture  rl.Texture2D
+	clicked_ok     bool
 }
 
 type button struct {
@@ -20,6 +21,7 @@ type button struct {
 
 const (
 	button_group_main = iota
+	button_group_popup
 )
 
 func (he *heightmap_editor) init_buttons() {
@@ -29,6 +31,14 @@ func (he *heightmap_editor) init_buttons() {
 	he.buttons.group_pressed = -1
 	he.buttons.button_pressed = -1
 	he.buttons.empty_texture = rl.LoadTextureFromImage(rl.GenImageColor(1, 1, rl.Black))
+
+	he.buttons.new_group()
+	he.buttons.new_group()
+
+	he.init_main_buttons()
+	he.buttons.new_button(button_group_popup, "OK", 0, 0, func() {
+		he.buttons.clicked_ok = true
+	})
 }
 
 func (bs *buttons) new_group() {
@@ -75,6 +85,7 @@ func (bs *buttons) last_update() {
 	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 		bs.group_pressed = -1
 		bs.button_pressed = -1
+		bs.clicked_ok = false
 	}
 }
 
@@ -89,9 +100,23 @@ func (bs *buttons) draw(g int, cc *color_config) {
 			}
 		}
 		if bs.group[g][i].texture == &bs.empty_texture {
-			rl.DrawText(bs.group[g][i].text, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, 20, cc.button_text)
+			rl.DrawText(bs.group[g][i].text, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, 20, cc.text)
 		} else {
 			rl.DrawTexture(*bs.group[g][i].texture, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, rl.White)
 		}
 	}
+}
+
+func (he *heightmap_editor) init_main_buttons() {
+	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_new], 0, 0, func() {
+		he.button_new_file()
+	})
+
+	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_open], 31, 0, func() {
+		he.button_open_file()
+	})
+
+	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_save], 62, 0, func() {
+		he.button_save_file()
+	})
 }
