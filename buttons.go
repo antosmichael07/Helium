@@ -1,15 +1,19 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 type buttons struct {
 	group          [][]button
 	group_pressed  int
 	button_pressed int
+	empty_texture  rl.Texture2D
 }
 
 type button struct {
 	text     string
+	texture  *rl.Texture2D
 	rect     rl.Rectangle
 	function func()
 }
@@ -23,6 +27,7 @@ func init_buttons() buttons {
 		group:          [][]button{},
 		group_pressed:  -1,
 		button_pressed: -1,
+		empty_texture:  rl.LoadTextureFromImage(rl.GenImageColor(1, 1, rl.Black)),
 	}
 }
 
@@ -30,9 +35,19 @@ func (bs *buttons) new_group() {
 	bs.group = append(bs.group, []button{})
 }
 
-func (bs *buttons) new_button(g int, text string, x, y, width, height int, function func()) {
+func (bs *buttons) new_button(g int, text string, x, y int, function func()) {
 	bs.group[g] = append(bs.group[g], button{
 		text:     text,
+		texture:  &bs.empty_texture,
+		rect:     rl.NewRectangle(float32(x), float32(y), float32(rl.MeasureText(text, 20)+10), float32(30)),
+		function: function,
+	})
+}
+
+func (bs *buttons) new_button_texture(g int, texture *rl.Texture2D, x, y, width, height int, function func()) {
+	bs.group[g] = append(bs.group[g], button{
+		text:     "",
+		texture:  texture,
 		rect:     rl.NewRectangle(float32(x), float32(y), float32(width), float32(height)),
 		function: function,
 	})
@@ -73,6 +88,10 @@ func (bs *buttons) draw(g int, cc *color_config) {
 				rl.DrawRectangleRec(bs.group[g][i].rect, cc.button_hover)
 			}
 		}
-		rl.DrawText(bs.group[g][i].text, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, 20, cc.button_text)
+		if bs.group[g][i].texture == &bs.empty_texture {
+			rl.DrawText(bs.group[g][i].text, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, 20, cc.button_text)
+		} else {
+			rl.DrawTexture(*bs.group[g][i].texture, int32(bs.group[g][i].rect.X), int32(bs.group[g][i].rect.Y), rl.White)
+		}
 	}
 }
