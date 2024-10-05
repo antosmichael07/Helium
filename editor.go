@@ -12,16 +12,20 @@ type heightmap_editor struct {
 	heightmap_image *rl.Image
 	texture_image   *rl.Image
 	config          config
+	textures        []rl.Texture2D
 }
 
 func init_heightmap_editor() heightmap_editor {
-	return heightmap_editor{
-		tool_window:     init_tool_window(),
-		buttons:         init_buttons(),
-		heightmap_image: &rl.Image{},
-		texture_image:   &rl.Image{},
-		config:          init_config(),
-	}
+	he := heightmap_editor{}
+
+	he.init_tool_window()
+	he.init_buttons()
+	he.heightmap_image = &rl.Image{}
+	he.texture_image = &rl.Image{}
+	he.init_config()
+	he.init_textures()
+
+	return he
 }
 
 func (he *heightmap_editor) new_file(width, height int) {

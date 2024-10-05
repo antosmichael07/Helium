@@ -33,22 +33,22 @@ const (
 	resizing_right  byte = 0b00001000
 )
 
-func init_tool_window() tool_window {
-	return tool_window{
-		inner_rect:     rl.NewRectangle(101, 140, 598, 359),
-		border_rect:    rl.NewRectangle(100, 100, 600, 400),
-		holding_rect:   rl.NewRectangle(100, 100, 600, 40),
-		resizing_rect:  rl.NewRectangle(94, 94, 612, 412),
-		tabs_rect:      rl.NewRectangle(101, 140, 598, 30),
-		is_holding:     false,
-		is_resizing:    false,
-		resizing_mode:  0,
-		selected_tab:   0,
-		tabs:           [3]string{"Heightmap", "Texture", "Models"},
-		tab_widths:     [3]int32{108, 94, 78},
-		tab_offsets:    [3]int32{0, 108, 202},
-		button_pressed: -1,
-	}
+func (he *heightmap_editor) init_tool_window() {
+	he.tool_window = tool_window{}
+
+	he.tool_window.inner_rect = rl.NewRectangle(101, 140, 598, 359)
+	he.tool_window.border_rect = rl.NewRectangle(100, 100, 600, 400)
+	he.tool_window.holding_rect = rl.NewRectangle(100, 100, 600, 40)
+	he.tool_window.resizing_rect = rl.NewRectangle(94, 94, 612, 412)
+	he.tool_window.tabs_rect = rl.NewRectangle(101, 140, 598, 30)
+	he.tool_window.is_holding = false
+	he.tool_window.is_resizing = false
+	he.tool_window.resizing_mode = 0
+	he.tool_window.selected_tab = 0
+	he.tool_window.tabs = [3]string{"Heightmap", "Texture", "Models"}
+	he.tool_window.tab_widths = [3]int32{108, 94, 78}
+	he.tool_window.tab_offsets = [3]int32{0, 108, 202}
+	he.tool_window.button_pressed = -1
 }
 
 func (tw *tool_window) update() {

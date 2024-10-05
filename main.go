@@ -10,6 +10,8 @@ func main() {
 
 	heightmap_editor.buttons.new_group()
 
+	heightmap_editor.buttons.new_button_texture(button_group_main, &heightmap_editor.textures[texture_icon_file_new], 0, 0, func() {})
+
 	for {
 		window_maganer()
 
@@ -23,7 +25,6 @@ func main() {
 		heightmap_editor.tool_window.draw(&heightmap_editor.config.color_config)
 		heightmap_editor.buttons.draw(button_group_main, &heightmap_editor.config.color_config)
 
-		rl.DrawFPS(10, 10)
 		rl.EndDrawing()
 	}
 }
