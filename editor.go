@@ -39,13 +39,13 @@ func init_heightmap_editor() heightmap_editor {
 
 func (he *heightmap_editor) update() {
 	he.tool_window.update()
-	he.buttons.update(button_group_main)
+	he.update_buttons(button_group_main)
 	he.buttons.last_update()
-	if rl.IsMouseButtonPressed(rl.MouseLeftButton) && !rl.CheckCollisionPointRec(rl.GetMousePosition(), he.tool_window.resizing_rect) {
+	if rl.IsMouseButtonPressed(rl.MouseLeftButton) && !rl.CheckCollisionPointRec(rl.GetMousePosition(), he.tool_window.resizing_rect) && !rl.CheckCollisionPointRec(rl.GetMousePosition(), rl.Rectangle{X: 0, Y: 0, Width: float32(rl.GetScreenWidth()), Height: 30}) {
 		rl.DisableCursor()
 		he.is_preview_focused = true
 	}
-	if rl.IsKeyPressed(rl.KeyEscape) {
+	if rl.IsKeyPressed(rl.KeyEscape) && he.is_preview_focused {
 		rl.EnableCursor()
 		he.is_preview_focused = false
 	}

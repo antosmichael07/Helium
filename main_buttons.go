@@ -1,6 +1,22 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+func (he_main *heightmap_editor) init_main_buttons() {
+	he_main.buttons.new_button_texture(button_group_main, &he_main.textures[texture_icon_file_new], 0, 0, func(he *heightmap_editor) {
+		he.button_new_file()
+	})
+
+	he_main.buttons.new_button_texture(button_group_main, &he_main.textures[texture_icon_file_open], 31, 0, func(he *heightmap_editor) {
+		he.button_open_file()
+	})
+
+	he_main.buttons.new_button_texture(button_group_main, &he_main.textures[texture_icon_file_save], 62, 0, func(he *heightmap_editor) {
+		he.button_save_file()
+	})
+}
 
 func (he *heightmap_editor) button_new_file() {
 	name, err := he.popup_string("New Project Name:")
@@ -37,6 +53,7 @@ func (he *heightmap_editor) button_new_file() {
 	}
 
 	he.new_file(name, w, h, l)
+	he.update_heightmap()
 }
 
 func (he *heightmap_editor) button_open_file() {

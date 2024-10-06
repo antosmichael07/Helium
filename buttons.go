@@ -17,7 +17,7 @@ type button struct {
 	text     string
 	texture  *rl.Texture2D
 	rect     rl.Rectangle
-	function func()
+	function func(*heightmap_editor)
 }
 
 const (
@@ -25,21 +25,21 @@ const (
 	button_group_popup
 )
 
-func (he *heightmap_editor) init_buttons() {
-	he.buttons = buttons{}
+func (he_main *heightmap_editor) init_buttons() {
+	he_main.buttons = buttons{}
 
-	he.buttons.group = [][]button{}
-	he.buttons.group_pressed = -1
-	he.buttons.button_pressed = -1
-	he.buttons.empty_texture = rl.LoadTextureFromImage(rl.GenImageColor(1, 1, rl.Black))
-	he.buttons.clicked_ok = false
-	he.buttons.shortcut = false
+	he_main.buttons.group = [][]button{}
+	he_main.buttons.group_pressed = -1
+	he_main.buttons.button_pressed = -1
+	he_main.buttons.empty_texture = rl.LoadTextureFromImage(rl.GenImageColor(1, 1, rl.Black))
+	he_main.buttons.clicked_ok = false
+	he_main.buttons.shortcut = false
 
-	he.buttons.new_group()
-	he.buttons.new_group()
+	he_main.buttons.new_group()
+	he_main.buttons.new_group()
 
-	he.init_main_buttons()
-	he.buttons.new_button(button_group_popup, "OK", 0, 0, func() {
+	he_main.init_main_buttons()
+	he_main.buttons.new_button(button_group_popup, "OK", 0, 0, func(he *heightmap_editor) {
 		he.buttons.clicked_ok = true
 	})
 }
@@ -48,7 +48,7 @@ func (bs *buttons) new_group() {
 	bs.group = append(bs.group, []button{})
 }
 
-func (bs *buttons) new_button(g int, text string, x, y int, function func()) {
+func (bs *buttons) new_button(g int, text string, x, y int, function func(*heightmap_editor)) {
 	bs.group[g] = append(bs.group[g], button{
 		text:     text,
 		texture:  &bs.empty_texture,
@@ -57,7 +57,7 @@ func (bs *buttons) new_button(g int, text string, x, y int, function func()) {
 	})
 }
 
-func (bs *buttons) new_button_texture(g int, texture *rl.Texture2D, x, y int, function func()) {
+func (bs *buttons) new_button_texture(g int, texture *rl.Texture2D, x, y int, function func(*heightmap_editor)) {
 	bs.group[g] = append(bs.group[g], button{
 		text:     "",
 		texture:  texture,
@@ -66,26 +66,26 @@ func (bs *buttons) new_button_texture(g int, texture *rl.Texture2D, x, y int, fu
 	})
 }
 
-func (bs *buttons) update(g int) {
-	if bs.group_pressed == -1 {
-		for i := 0; i < len(bs.group[g]); i++ {
-			if (rl.IsMouseButtonPressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(rl.GetMousePosition(), bs.group[g][i].rect)) || (g == button_group_main && is_shortcut_pressed[i]()) {
-				bs.group_pressed = g
-				bs.button_pressed = i
+func (he *heightmap_editor) update_buttons(g int) {
+	if he.buttons.group_pressed == -1 {
+		for i := 0; i < len(he.buttons.group[g]); i++ {
+			if (rl.IsMouseButtonPressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(rl.GetMousePosition(), he.buttons.group[g][i].rect)) || (g == button_group_main && is_shortcut_pressed[i]()) {
+				he.buttons.group_pressed = g
+				he.buttons.button_pressed = i
 				break
 			}
 		}
 	}
 
-	if bs.button_pressed != -1 && g == button_group_main && is_shortcut_pressed[bs.button_pressed]() {
-		bs.shortcut = true
-		bs.group[g][bs.button_pressed].function()
+	if he.buttons.button_pressed != -1 && g == button_group_main && is_shortcut_pressed[he.buttons.button_pressed]() {
+		he.buttons.shortcut = true
+		he.buttons.group[g][he.buttons.button_pressed].function(he)
 		return
 	}
 
-	if bs.group_pressed == g && rl.IsMouseButtonReleased(rl.MouseLeftButton) {
-		if rl.CheckCollisionPointRec(rl.GetMousePosition(), bs.group[g][bs.button_pressed].rect) {
-			bs.group[g][bs.button_pressed].function()
+	if he.buttons.group_pressed == g && rl.IsMouseButtonReleased(rl.MouseLeftButton) {
+		if rl.CheckCollisionPointRec(rl.GetMousePosition(), he.buttons.group[g][he.buttons.button_pressed].rect) {
+			he.buttons.group[g][he.buttons.button_pressed].function(he)
 		}
 	}
 }
@@ -109,24 +109,10 @@ func (bs *buttons) draw(g int, cc *color_config) {
 				rl.DrawRectangleRec(bs.group[g][i].rect, cc.button_hover)
 			}
 		}
-		if bs.group[g][i].texture == &bs.empty_texture {
+		if *bs.group[g][i].texture == bs.empty_texture {
 			rl.DrawText(bs.group[g][i].text, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, 20, cc.text)
 		} else {
 			rl.DrawTexture(*bs.group[g][i].texture, int32(bs.group[g][i].rect.X)+5, int32(bs.group[g][i].rect.Y)+5, rl.White)
 		}
 	}
-}
-
-func (he *heightmap_editor) init_main_buttons() {
-	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_new], 0, 0, func() {
-		he.button_new_file()
-	})
-
-	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_open], 31, 0, func() {
-		he.button_open_file()
-	})
-
-	he.buttons.new_button_texture(button_group_main, &he.textures[texture_icon_file_save], 62, 0, func() {
-		he.button_save_file()
-	})
 }

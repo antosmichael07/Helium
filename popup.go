@@ -22,7 +22,7 @@ func (he *heightmap_editor) popup_uint(message string) (int, error) {
 		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
 		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + 30
 
-		he.buttons.update(button_group_popup)
+		he.update_buttons(button_group_popup)
 
 		if he.buttons.clicked_ok {
 			he.buttons.last_update()
@@ -96,7 +96,7 @@ func (he *heightmap_editor) popup_string(message string) (string, error) {
 		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
 		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + 30
 
-		he.buttons.update(button_group_popup)
+		he.update_buttons(button_group_popup)
 
 		if he.buttons.clicked_ok {
 			he.buttons.last_update()
@@ -185,7 +185,7 @@ func (he *heightmap_editor) popup_alert(message string) {
 		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
 		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + float32(len(split_text))*15 - 15
 
-		he.buttons.update(button_group_popup)
+		he.update_buttons(button_group_popup)
 
 		if he.buttons.clicked_ok {
 			he.buttons.last_update()
@@ -247,7 +247,7 @@ func (he *heightmap_editor) popup_error(err string) {
 		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
 		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + float32(len(split_text))*15 - 15
 
-		he.buttons.update(button_group_popup)
+		he.update_buttons(button_group_popup)
 
 		if he.buttons.clicked_ok {
 			he.buttons.last_update()
