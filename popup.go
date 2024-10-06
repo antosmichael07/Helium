@@ -151,7 +151,30 @@ func (he *heightmap_editor) popup_string(message string) (string, error) {
 }
 
 func (he *heightmap_editor) popup_alert(message string) {
-	message_len := rl.MeasureText(message, 20)
+	message_len := []int32{}
+	split_text := []string{}
+
+	for i := 0; i < len(message); {
+		white_space := i
+		for white_space < len(message) && message[white_space] != ' ' && message[white_space] != '\t' && message[white_space] != '\n' && message[white_space] != '\r' && message[white_space] != '\v' && message[white_space] != '\f' {
+			white_space++
+		}
+
+		if white_space == len(message) {
+			split_text = append(split_text, message)
+			message_len = append(message_len, rl.MeasureText(split_text[len(split_text)-1], 20))
+			break
+		}
+
+		if rl.MeasureText(message[:white_space], 20) > 520 {
+			split_text = append(split_text, message[:i-1])
+			message_len = append(message_len, rl.MeasureText(split_text[len(split_text)-1], 20))
+			message = message[i:]
+			i = 0
+		} else {
+			i = white_space + 1
+		}
+	}
 
 	for {
 		window_maganer()
@@ -160,7 +183,7 @@ func (he *heightmap_editor) popup_alert(message string) {
 		window_height := int32(rl.GetScreenHeight())
 
 		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
-		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height) / 2
+		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + float32(len(split_text))*15 - 15
 
 		he.buttons.update(button_group_popup)
 
@@ -177,10 +200,74 @@ func (he *heightmap_editor) popup_alert(message string) {
 
 		rl.BeginDrawing()
 
-		rl.DrawRectangle(window_width/2-300, window_height/2-50, 600, 100, he.config.color_config.window_border)
-		rl.DrawRectangle(window_width/2-299, window_height/2-49, 598, 98, he.config.color_config.window_background)
+		rl.DrawRectangle(window_width/2-300, window_height/2-(15*int32(len(split_text)))-35, 600, (30*int32(len(split_text)))+70, he.config.color_config.window_border)
+		rl.DrawRectangle(window_width/2-299, window_height/2-(15*int32(len(split_text)))-34, 598, (30*int32(len(split_text)))+68, he.config.color_config.window_background)
 		he.buttons.draw(button_group_popup, &he.config.color_config)
-		rl.DrawText(message, window_width/2-message_len/2, window_height/2-30, 20, he.config.color_config.text)
+		for i := 0; i < len(split_text); i++ {
+			rl.DrawText(split_text[i], window_width/2-message_len[i]/2, window_height/2-(15*int32(len(split_text)))+(int32(i)*30)-15, 20, he.config.color_config.text)
+		}
+
+		rl.EndDrawing()
+	}
+}
+
+func (he *heightmap_editor) popup_error(err string) {
+	err = "Error: " + err
+	err_len := []int32{}
+	split_text := []string{}
+
+	for i := 0; i < len(err); {
+		white_space := i
+		for white_space < len(err) && err[white_space] != ' ' && err[white_space] != '\t' && err[white_space] != '\n' && err[white_space] != '\r' && err[white_space] != '\v' && err[white_space] != '\f' {
+			white_space++
+		}
+
+		if white_space == len(err) {
+			split_text = append(split_text, err)
+			err_len = append(err_len, rl.MeasureText(split_text[len(split_text)-1], 20))
+			break
+		}
+
+		if rl.MeasureText(err[:white_space], 20) > 520 {
+			split_text = append(split_text, err[:i-1])
+			err_len = append(err_len, rl.MeasureText(split_text[len(split_text)-1], 20))
+			err = err[i:]
+			i = 0
+		} else {
+			i = white_space + 1
+		}
+	}
+
+	for {
+		window_maganer()
+
+		window_width := int32(rl.GetScreenWidth())
+		window_height := int32(rl.GetScreenHeight())
+
+		he.buttons.group[button_group_popup][0].rect.X = float32(window_width)/2 - he.buttons.group[button_group_popup][0].rect.Width/2
+		he.buttons.group[button_group_popup][0].rect.Y = float32(window_height)/2 + float32(len(split_text))*15 - 15
+
+		he.buttons.update(button_group_popup)
+
+		if he.buttons.clicked_ok {
+			he.buttons.last_update()
+			break
+		}
+
+		if rl.IsKeyPressed(rl.KeyEnter) || rl.IsKeyPressed(rl.KeyKpEnter) || rl.IsKeyPressed(rl.KeyEscape) {
+			break
+		}
+
+		he.buttons.last_update()
+
+		rl.BeginDrawing()
+
+		rl.DrawRectangle(window_width/2-300, window_height/2-(15*int32(len(split_text)))-35, 600, (30*int32(len(split_text)))+70, he.config.color_config.window_border)
+		rl.DrawRectangle(window_width/2-299, window_height/2-(15*int32(len(split_text)))-34, 598, (30*int32(len(split_text)))+68, he.config.color_config.window_background)
+		he.buttons.draw(button_group_popup, &he.config.color_config)
+		for i := 0; i < len(split_text); i++ {
+			rl.DrawText(split_text[i], window_width/2-err_len[i]/2, window_height/2-(15*int32(len(split_text)))+(int32(i)*30)-15, 20, rl.Red)
+		}
 
 		rl.EndDrawing()
 	}

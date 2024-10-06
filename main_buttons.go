@@ -7,7 +7,7 @@ func (he *heightmap_editor) button_new_file() {
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
-			he.popup_alert(err.Error())
+			he.popup_error(err.Error())
 		}
 		return
 	}
@@ -15,7 +15,7 @@ func (he *heightmap_editor) button_new_file() {
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
-			he.popup_alert(err.Error())
+			he.popup_error(err.Error())
 		}
 		return
 	}
@@ -23,7 +23,7 @@ func (he *heightmap_editor) button_new_file() {
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
-			he.popup_alert(err.Error())
+			he.popup_error(err.Error())
 		}
 		return
 	}
@@ -36,7 +36,7 @@ func (he *heightmap_editor) button_open_file() {
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
-			he.popup_alert(err.Error())
+			he.popup_error(err.Error())
 		}
 		return
 	}
@@ -49,7 +49,7 @@ func (he *heightmap_editor) button_save_file() {
 
 	if err != nil {
 		rl.EndDrawing()
-		he.popup_alert(err.Error())
+		he.popup_error(err.Error())
 	} else {
 		rl.EndDrawing()
 		he.popup_alert("File saved successfully!")

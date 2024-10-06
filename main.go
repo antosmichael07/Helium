@@ -20,6 +20,7 @@ func main() {
 		rl.BeginDrawing()
 		rl.ClearBackground(heightmap_editor.config.color_config.preview_background)
 
+		rl.DrawRectangle(0, 0, int32(rl.GetScreenWidth()), 30, heightmap_editor.config.color_config.button)
 		heightmap_editor.tool_window.draw(&heightmap_editor.config.color_config)
 		heightmap_editor.buttons.draw(button_group_main, &heightmap_editor.config.color_config)
 
