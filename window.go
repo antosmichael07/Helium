@@ -10,12 +10,14 @@ var refresh_rate int32
 
 func init_window() {
 	rl.SetTraceLogLevel(rl.LogError)
-	rl.InitWindow(1280, 720, "Heightmap Editor")
+	rl.InitWindow(1280, 720, "Helium")
 	rl.SetExitKey(-1)
 	rl.SetWindowState(rl.FlagWindowResizable)
 	rl.MaximizeWindow()
 	refresh_rate = int32(rl.GetMonitorRefreshRate(rl.GetCurrentMonitor()))
 	rl.SetTargetFPS(refresh_rate)
+	icon := rl.LoadImage("textures/icon.png")
+	rl.SetWindowIcon(*icon)
 }
 
 func window_maganer() {
