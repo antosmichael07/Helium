@@ -7,15 +7,19 @@ import (
 )
 
 type heightmap_editor struct {
-	tool_window      tool_window
-	buttons          buttons
-	heightmap_image  *rl.Image
-	texture_image    *rl.Image
-	heightmap_width  int
-	heightmap_height int
-	project_name     string
-	config           config
-	textures         []rl.Texture2D
+	tool_window        tool_window
+	buttons            buttons
+	heightmap_image    *rl.Image
+	texture_image      *rl.Image
+	heightmap_width    int
+	heightmap_height   int
+	heightmap_length   int
+	heightmap_model    rl.Model
+	project_name       string
+	config             config
+	textures           []rl.Texture2D
+	camera             rl.Camera3D
+	is_preview_focused bool
 }
 
 func init_heightmap_editor() heightmap_editor {
@@ -25,16 +29,42 @@ func init_heightmap_editor() heightmap_editor {
 	he.init_tool_window()
 	he.init_buttons()
 	he.init_config()
-	he.new_file("New Project", 16, 16)
+	he.new_file("New Project", 16, 8, 16)
+	he.heightmap_model = rl.LoadModelFromMesh(rl.GenMeshHeightmap(*he.heightmap_image, rl.NewVector3(float32(he.heightmap_width), float32(he.heightmap_height), float32(he.heightmap_length))))
+	he.camera = rl.NewCamera3D(rl.NewVector3(0, 0, 0), rl.NewVector3(1, 0, 1), rl.NewVector3(0, 1, 0), 70, rl.CameraPerspective)
+	he.is_preview_focused = false
 
 	return he
 }
 
-func (he *heightmap_editor) new_file(name string, width, height int) {
+func (he *heightmap_editor) update() {
+	he.tool_window.update()
+	he.buttons.update(button_group_main)
+	he.buttons.last_update()
+	if rl.IsMouseButtonPressed(rl.MouseLeftButton) && !rl.CheckCollisionPointRec(rl.GetMousePosition(), he.tool_window.resizing_rect) {
+		rl.DisableCursor()
+		he.is_preview_focused = true
+	}
+	if rl.IsKeyPressed(rl.KeyEscape) {
+		rl.EnableCursor()
+		he.is_preview_focused = false
+	}
+	if he.is_preview_focused {
+		rl.UpdateCamera(&he.camera, rl.CameraFree)
+	}
+}
+
+func (he *heightmap_editor) update_heightmap() {
+	rl.UnloadModel(he.heightmap_model)
+	he.heightmap_model = rl.LoadModelFromMesh(rl.GenMeshHeightmap(*he.heightmap_image, rl.NewVector3(float32(he.heightmap_width), float32(he.heightmap_height), float32(he.heightmap_length))))
+}
+
+func (he *heightmap_editor) new_file(name string, width, height, length int) {
 	he.project_name = name
-	he.heightmap_image = rl.GenImageColor(width, height, rl.Black)
-	he.texture_image = rl.GenImageColor(width, height, rl.White)
+	he.heightmap_image = rl.GenImageColor(width, length, rl.Black)
+	he.texture_image = rl.GenImageColor(width, length, rl.White)
 	he.heightmap_width = width
+	he.heightmap_length = length
 	he.heightmap_height = height
 }
 

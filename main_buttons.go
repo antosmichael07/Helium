@@ -11,7 +11,7 @@ func (he *heightmap_editor) button_new_file() {
 		}
 		return
 	}
-	x, err := he.popup_uint("Heightmap Width:")
+	w, err := he.popup_uint("Heightmap Width:")
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
@@ -19,7 +19,15 @@ func (he *heightmap_editor) button_new_file() {
 		}
 		return
 	}
-	y, err := he.popup_uint("Heightmap Height:")
+	h, err := he.popup_uint("Heightmap Height:")
+	if err != nil {
+		if err.Error() != "esc" {
+			rl.EndDrawing()
+			he.popup_error(err.Error())
+		}
+		return
+	}
+	l, err := he.popup_uint("Heightmap Length:")
 	if err != nil {
 		if err.Error() != "esc" {
 			rl.EndDrawing()
@@ -28,7 +36,7 @@ func (he *heightmap_editor) button_new_file() {
 		return
 	}
 
-	he.new_file(name, x, y)
+	he.new_file(name, w, h, l)
 }
 
 func (he *heightmap_editor) button_open_file() {
