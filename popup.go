@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"strconv"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func (he *heightmap_editor) popup_uint(message string) (int, bool) {
+func (he *heightmap_editor) popup_uint(message string) (int, error) {
 	msg_before_cursor := ""
 	msg_after_cursor := ""
 
@@ -38,7 +39,7 @@ func (he *heightmap_editor) popup_uint(message string) (int, bool) {
 			} else if key_pressed == rl.KeyKpEnter {
 				break
 			} else if key_pressed == rl.KeyEscape {
-				return 0, true
+				return 0, errors.New("esc")
 			} else if key_pressed == rl.KeyRight {
 				if len(msg_after_cursor) > 0 {
 					msg_before_cursor += string(msg_after_cursor[0])
@@ -68,15 +69,19 @@ func (he *heightmap_editor) popup_uint(message string) (int, bool) {
 		rl.EndDrawing()
 	}
 
-	value, err := strconv.Atoi(msg_before_cursor + msg_after_cursor)
-	if err != nil || value <= 0 {
-		return 0, true
+	if check_white_space(msg_before_cursor + msg_after_cursor) {
+		return 0, errors.New("empty input")
 	}
 
-	return value, false
+	value, err := strconv.Atoi(msg_before_cursor + msg_after_cursor)
+	if err != nil || value <= 0 {
+		return 0, errors.New("invalid input")
+	}
+
+	return value, nil
 }
 
-func (he *heightmap_editor) popup_string(message string) (string, bool) {
+func (he *heightmap_editor) popup_string(message string) (string, error) {
 	msg_before_cursor := ""
 	msg_after_cursor := ""
 
@@ -108,7 +113,7 @@ func (he *heightmap_editor) popup_string(message string) (string, bool) {
 			} else if key_pressed == rl.KeyKpEnter {
 				break
 			} else if key_pressed == rl.KeyEscape {
-				return "", true
+				return "", errors.New("esc")
 			} else if key_pressed == rl.KeyRight {
 				if len(msg_after_cursor) > 0 {
 					msg_before_cursor += string(msg_after_cursor[0])
@@ -138,11 +143,11 @@ func (he *heightmap_editor) popup_string(message string) (string, bool) {
 		rl.EndDrawing()
 	}
 
-	if len(msg_before_cursor+msg_after_cursor) == 0 {
-		return "", true
+	if check_white_space(msg_before_cursor + msg_after_cursor) {
+		return "", errors.New("empty input")
 	}
 
-	return msg_before_cursor + msg_after_cursor, false
+	return msg_before_cursor + msg_after_cursor, nil
 }
 
 func (he *heightmap_editor) popup_alert(message string) {
@@ -179,4 +184,13 @@ func (he *heightmap_editor) popup_alert(message string) {
 
 		rl.EndDrawing()
 	}
+}
+
+func check_white_space(str string) bool {
+	for i := 0; i < len(str); i++ {
+		if str[i] != ' ' && str[i] != '\t' && str[i] != '\n' && str[i] != '\r' && str[i] != '\v' && str[i] != '\f' {
+			return false
+		}
+	}
+	return true
 }

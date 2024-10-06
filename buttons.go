@@ -10,6 +10,7 @@ type buttons struct {
 	button_pressed int
 	empty_texture  rl.Texture2D
 	clicked_ok     bool
+	shortcut       bool
 }
 
 type button struct {
@@ -31,6 +32,8 @@ func (he *heightmap_editor) init_buttons() {
 	he.buttons.group_pressed = -1
 	he.buttons.button_pressed = -1
 	he.buttons.empty_texture = rl.LoadTextureFromImage(rl.GenImageColor(1, 1, rl.Black))
+	he.buttons.clicked_ok = false
+	he.buttons.shortcut = false
 
 	he.buttons.new_group()
 	he.buttons.new_group()
@@ -64,14 +67,20 @@ func (bs *buttons) new_button_texture(g int, texture *rl.Texture2D, x, y int, fu
 }
 
 func (bs *buttons) update(g int) {
-	if bs.group_pressed == -1 && rl.IsMouseButtonPressed(rl.MouseLeftButton) {
+	if bs.group_pressed == -1 {
 		for i := 0; i < len(bs.group[g]); i++ {
-			if rl.CheckCollisionPointRec(rl.GetMousePosition(), bs.group[g][i].rect) {
+			if (rl.IsMouseButtonPressed(rl.MouseLeftButton) && rl.CheckCollisionPointRec(rl.GetMousePosition(), bs.group[g][i].rect)) || (g == button_group_main && is_shortcut_pressed[i]()) {
 				bs.group_pressed = g
 				bs.button_pressed = i
 				break
 			}
 		}
+	}
+
+	if bs.button_pressed != -1 && g == button_group_main && is_shortcut_pressed[bs.button_pressed]() {
+		bs.shortcut = true
+		bs.group[g][bs.button_pressed].function()
+		return
 	}
 
 	if bs.group_pressed == g && rl.IsMouseButtonReleased(rl.MouseLeftButton) {
@@ -82,10 +91,11 @@ func (bs *buttons) update(g int) {
 }
 
 func (bs *buttons) last_update() {
-	if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
+	if rl.IsMouseButtonReleased(rl.MouseLeftButton) || bs.shortcut {
 		bs.group_pressed = -1
 		bs.button_pressed = -1
 		bs.clicked_ok = false
+		bs.shortcut = false
 	}
 }
 

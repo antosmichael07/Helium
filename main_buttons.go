@@ -1,16 +1,30 @@
 package main
 
+import rl "github.com/gen2brain/raylib-go/raylib"
+
 func (he *heightmap_editor) button_new_file() {
-	name, esc := he.popup_string("New Project Name:")
-	if esc {
+	name, err := he.popup_string("New Project Name:")
+	if err != nil {
+		if err.Error() != "esc" {
+			rl.EndDrawing()
+			he.popup_alert(err.Error())
+		}
 		return
 	}
-	x, esc := he.popup_uint("Heightmap Width:")
-	if esc {
+	x, err := he.popup_uint("Heightmap Width:")
+	if err != nil {
+		if err.Error() != "esc" {
+			rl.EndDrawing()
+			he.popup_alert(err.Error())
+		}
 		return
 	}
-	y, esc := he.popup_uint("Heightmap Height:")
-	if esc {
+	y, err := he.popup_uint("Heightmap Height:")
+	if err != nil {
+		if err.Error() != "esc" {
+			rl.EndDrawing()
+			he.popup_alert(err.Error())
+		}
 		return
 	}
 
@@ -18,8 +32,12 @@ func (he *heightmap_editor) button_new_file() {
 }
 
 func (he *heightmap_editor) button_open_file() {
-	file, esc := he.popup_string("Open File:")
-	if esc {
+	file, err := he.popup_string("Open File:")
+	if err != nil {
+		if err.Error() != "esc" {
+			rl.EndDrawing()
+			he.popup_alert(err.Error())
+		}
 		return
 	}
 
@@ -30,8 +48,10 @@ func (he *heightmap_editor) button_save_file() {
 	err := he.save_heightmap_texture_image(he.project_name + ".mhm")
 
 	if err != nil {
+		rl.EndDrawing()
 		he.popup_alert(err.Error())
 	} else {
+		rl.EndDrawing()
 		he.popup_alert("File saved successfully!")
 	}
 }
