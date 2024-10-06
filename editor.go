@@ -7,13 +7,15 @@ import (
 )
 
 type heightmap_editor struct {
-	tool_window     tool_window
-	buttons         buttons
-	heightmap_image *rl.Image
-	texture_image   *rl.Image
-	project_name    string
-	config          config
-	textures        []rl.Texture2D
+	tool_window      tool_window
+	buttons          buttons
+	heightmap_image  *rl.Image
+	texture_image    *rl.Image
+	heightmap_width  int
+	heightmap_height int
+	project_name     string
+	config           config
+	textures         []rl.Texture2D
 }
 
 func init_heightmap_editor() heightmap_editor {
@@ -22,9 +24,8 @@ func init_heightmap_editor() heightmap_editor {
 	he.init_textures()
 	he.init_tool_window()
 	he.init_buttons()
-	he.heightmap_image = &rl.Image{}
-	he.texture_image = &rl.Image{}
 	he.init_config()
+	he.new_file("New Project", 16, 16)
 
 	return he
 }
@@ -33,6 +34,8 @@ func (he *heightmap_editor) new_file(name string, width, height int) {
 	he.project_name = name
 	he.heightmap_image = rl.GenImageColor(width, height, rl.Black)
 	he.texture_image = rl.GenImageColor(width, height, rl.White)
+	he.heightmap_width = width
+	he.heightmap_height = height
 }
 
 func (he *heightmap_editor) save_heightmap_texture_image(file string) error {

@@ -50,8 +50,8 @@ func (he *heightmap_editor) popup_uint(message string) (int, error) {
 					msg_after_cursor = string(msg_before_cursor[len(msg_before_cursor)-1]) + msg_after_cursor
 					msg_before_cursor = msg_before_cursor[:len(msg_before_cursor)-1]
 				}
-			} else if (key_pressed >= rl.KeyZero && key_pressed <= rl.KeyNine) || (key_pressed >= rl.KeyKp0 && key_pressed <= rl.KeyKp9) {
-				msg_before_cursor += string(rl.GetCharPressed())
+			} else if char := rl.GetCharPressed(); ((key_pressed >= rl.KeyZero && key_pressed <= rl.KeyNine) || (key_pressed >= rl.KeyKp0 && key_pressed <= rl.KeyKp9)) && rl.MeasureText(msg_before_cursor+string(char)+"|"+msg_after_cursor, 20) < 520 {
+				msg_before_cursor += string(char)
 			}
 		}
 
@@ -61,7 +61,7 @@ func (he *heightmap_editor) popup_uint(message string) (int, error) {
 
 		rl.DrawRectangle(window_width/2-300, window_height/2-70, 600, 140, he.config.color_config.window_border)
 		rl.DrawRectangle(window_width/2-299, window_height/2-69, 598, 138, he.config.color_config.window_background)
-		rl.DrawRectangle(window_width/2-259, window_height/2-15, 518, 30, he.config.color_config.button)
+		rl.DrawRectangle(window_width/2-260, window_height/2-15, 520, 30, he.config.color_config.button)
 		he.buttons.draw(button_group_popup, &he.config.color_config)
 		rl.DrawText(message, window_width/2-message_len/2, window_height/2-50, 20, he.config.color_config.text)
 		rl.DrawText(msg_before_cursor+"|"+msg_after_cursor, window_width/2-rl.MeasureText(msg_before_cursor+"|"+msg_after_cursor, 20)/2, window_height/2-10, 20, he.config.color_config.text)
@@ -124,7 +124,7 @@ func (he *heightmap_editor) popup_string(message string) (string, error) {
 					msg_after_cursor = string(msg_before_cursor[len(msg_before_cursor)-1]) + msg_after_cursor
 					msg_before_cursor = msg_before_cursor[:len(msg_before_cursor)-1]
 				}
-			} else if char := rl.GetCharPressed(); char >= 32 && char <= 125 {
+			} else if char := rl.GetCharPressed(); char >= 32 && char <= 125 && rl.MeasureText(msg_before_cursor+string(char)+"|"+msg_after_cursor, 20) < 520 {
 				msg_before_cursor += string(char)
 			}
 		}
