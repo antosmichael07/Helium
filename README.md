@@ -1,1 +1,3 @@
-# Heightmap-Editor
+# Helium
+
+Helium - He - Heightmap Editor
