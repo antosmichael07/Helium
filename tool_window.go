@@ -94,7 +94,24 @@ func (tw *tool_window) movement() {
 }
 
 func (tw *tool_window) resizing() {
-	if mouse_pos := rl.GetMousePosition(); tw.is_resizing || (rl.CheckCollisionPointRec(mouse_pos, tw.resizing_rect) && !rl.CheckCollisionPointRec(mouse_pos, tw.border_rect)) {
+	mouse_pos := rl.GetMousePosition()
+	if rl.IsMouseButtonReleased(rl.MouseLeftButton) && tw.is_holding {
+		if mouse_pos.X >= 0 && mouse_pos.X <= 10 {
+			tw.inner_rect = rl.NewRectangle(1, 70, tw.inner_rect.Width, float32(rl.GetScreenHeight())-71)
+			tw.border_rect = rl.NewRectangle(0, 30, tw.border_rect.Width, float32(rl.GetScreenHeight())-30)
+			tw.holding_rect = rl.NewRectangle(0, 30, tw.holding_rect.Width, 40)
+			tw.resizing_rect = rl.NewRectangle(-6, 24, tw.resizing_rect.Width, float32(rl.GetScreenHeight())-18)
+			tw.tabs_rect = rl.NewRectangle(1, 70, tw.tabs_rect.Width, 30)
+		} else if mouse_pos.X >= float32(rl.GetScreenWidth())-10 && mouse_pos.X <= float32(rl.GetScreenWidth()) {
+			tw.inner_rect = rl.NewRectangle(float32(rl.GetScreenWidth())-tw.inner_rect.Width-1, 70, tw.inner_rect.Width, float32(rl.GetScreenHeight())-71)
+			tw.border_rect = rl.NewRectangle(float32(rl.GetScreenWidth())-tw.border_rect.Width, 30, tw.border_rect.Width, float32(rl.GetScreenHeight())-30)
+			tw.holding_rect = rl.NewRectangle(float32(rl.GetScreenWidth())-tw.holding_rect.Width, 30, tw.holding_rect.Width, 40)
+			tw.resizing_rect = rl.NewRectangle(float32(rl.GetScreenWidth())-tw.resizing_rect.Width+6, 24, tw.resizing_rect.Width, float32(rl.GetScreenHeight())-18)
+			tw.tabs_rect = rl.NewRectangle(float32(rl.GetScreenWidth())-tw.tabs_rect.Width-1, 70, tw.tabs_rect.Width, 30)
+		}
+	}
+
+	if tw.is_resizing || (rl.CheckCollisionPointRec(mouse_pos, tw.resizing_rect) && !rl.CheckCollisionPointRec(mouse_pos, tw.border_rect)) {
 		rl.SetMouseCursor(rl.MouseCursorResizeNESW)
 		if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
 			if !tw.is_resizing {
